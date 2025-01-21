@@ -5,3 +5,7 @@
 
 On our mission to crawl the web we often find doppelgängers, URLs that we already visited ; or web pages, images, audios, videos, embedded content. Anything we archive in fact.  
 This an implementation of an url agnostic deduplication server using ScyllaDB.
+
+# Development status
+
+This project is a WIP for now.
