@@ -1,0 +1,33 @@
+services:
+  crawlhq:
+    container_name: doppelganger
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5000:5000
+    stop_grace_period: 10m
+    restart: unless-stopped
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=5000
+      - SERVER_AUTH=false
+      - SERVER_DEBUG=false
+      - LOGGING_LEVEL=info
+      - SCYLLA_HOSTS=localhost
+      - SCYLLA_KEYSPACE=doppelganger
+      - SCYLLA_REPLICATION_CLASS=SimpleStrategy
+      - SCYLLA_REPLICATION_FACTOR=1
+      - PYROSCOPE_ADDRESS=
+  scylla:
+    image: scylladb/scylla
+    container_name: scylla
+  pyroscope:
+    image: grafana/pyroscope
+    ports:
+      - "4040:4040"
+
+volumes:
+  crawlhq:
+  valkey_data:
+    driver: local
