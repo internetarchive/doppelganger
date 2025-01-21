@@ -26,8 +26,3 @@ services:
     image: grafana/pyroscope
     ports:
       - "4040:4040"
-
-volumes:
-  crawlhq:
-  valkey_data:
-    driver: local
