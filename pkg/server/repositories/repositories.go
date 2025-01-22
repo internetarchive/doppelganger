@@ -77,7 +77,7 @@ func initScyllaTable() (err error) {
 	// Create the table
 	if err := scyllaSession.Query(`CREATE TABLE IF NOT EXISTS records (
             id text PRIMARY KEY,
-            date text,
+            date timestamp,
             uri text
         )`, []string{}).Exec(); err != nil {
 		slog.Error("error when creating table", slog.String("error", err.Error()))

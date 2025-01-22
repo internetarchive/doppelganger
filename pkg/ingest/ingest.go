@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -87,10 +88,16 @@ func Files(concurrency int, URL string, files ...string) {
 func convertToModelRecords(records []gocdx.Record) []*models.Record {
 	modelRecords := make([]*models.Record, len(records))
 	for i, record := range records {
+		date, err := strconv.Atoi(record.Timestamp.Format("20060102150405"))
+		if err != nil {
+			fmt.Println("Error converting date:", err)
+			return nil
+		}
+
 		modelRecords[i] = &models.Record{
 			ID:   record.NewStyleChecksum,
 			URI:  record.OriginalURL,
-			Date: record.Timestamp.Format("20060102150405"),
+			Date: int64(date),
 		}
 	}
 	return modelRecords
