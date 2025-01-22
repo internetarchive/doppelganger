@@ -3,6 +3,7 @@ package repositories
 import (
 	"fmt"
 
+	"github.com/gocql/gocql"
 	"github.com/internetarchive/doppelganger/pkg/server/models"
 	"github.com/scylladb/gocqlx/v3/qb"
 )
@@ -23,13 +24,19 @@ func GetRecord(ID string) (*models.Record, error) {
 	return (*records)[0], nil
 }
 
-func AddRecord(r *models.Record) error {
-	q := scyllaSession.Query(
-		scyllaTable.InsertBuilder().
-			Unique().
-			ToCql()).
-		BindStruct(r)
-	if err := q.ExecRelease(); err != nil {
+func AddRecords(records ...*models.Record) error {
+	batch := scyllaSession.NewBatch(gocql.LoggedBatch)
+
+	for _, record := range records {
+		batch.Query(
+			fmt.Sprintf("INSERT INTO %s (id, uri, date) VALUES (?, ?, ?)", scyllaTable.Name()),
+			record.ID,
+			record.URI,
+			record.Date,
+		)
+	}
+
+	if err := scyllaSession.ExecuteBatch(batch); err != nil {
 		return err
 	}
 

@@ -18,17 +18,18 @@ func Start() {
 	// Load config
 	config, err := config.LoadConfig()
 	if err != nil {
-		slog.Error("Failed to load config: %v", err)
+		slog.Error("failed to load config", "err", err)
 		return
 	}
 
 	// Init ScyllaDB
 	if err := repositories.Init(config); err != nil {
-		slog.Error("Failed to initialize ScyllaDB: %v", err)
+		slog.Error("failed to initialize ScyllaDB", "err", err)
 		return
 	}
 
 	apiMux := http.NewServeMux()
+	apiMux.HandleFunc("/api/records", handlers.Records)
 	apiMux.HandleFunc("/api/records/", handlers.Records)
 
 	http.Handle("/api/", middlewares.LogRequest(apiMux))

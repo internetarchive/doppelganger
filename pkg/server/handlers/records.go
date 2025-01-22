@@ -10,22 +10,19 @@ import (
 )
 
 func Records(w http.ResponseWriter, r *http.Request) {
-	// Extract the record ID from the URL path
-	pathParts := strings.Split(r.URL.Path, "/")
-	if len(pathParts) < 3 {
-		http.Error(w, "Invalid URL", http.StatusBadRequest)
-		return
-	}
-
-	ID := pathParts[len(pathParts)-1]
-
-	if ID == "" {
-		http.Error(w, "invalid ID", http.StatusBadRequest)
+	ID := strings.TrimPrefix(strings.TrimPrefix(strings.TrimSuffix(r.URL.Path, "/"), "/api/records"), "/")
+	if r.Method == http.MethodPost && ID != "" {
+		http.Error(w, "invalid path for POST method", http.StatusBadRequest)
 		return
 	}
 
 	switch r.Method {
 	case http.MethodGet:
+		if ID == "" {
+			http.Error(w, "invalid ID", http.StatusBadRequest)
+			return
+		}
+
 		record, err := repositories.GetRecord(ID)
 		if err != nil {
 			if err == repositories.ErrRecordNotFound {
@@ -39,23 +36,24 @@ func Records(w http.ResponseWriter, r *http.Request) {
 
 		json.NewEncoder(w).Encode(record)
 	case http.MethodPost:
-		var record models.Record
+		var records []models.Record
 
-		if err := json.NewDecoder(r.Body).Decode(&record); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&records); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
-		record.ID = ID
-
-		err := repositories.AddRecord(&record)
+		var recordPtrs []*models.Record
+		for i := range records {
+			recordPtrs = append(recordPtrs, &records[i])
+		}
+		err := repositories.AddRecords(recordPtrs...)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(record)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
