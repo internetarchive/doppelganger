@@ -13,8 +13,6 @@ import (
 )
 
 func Start() {
-	slog.Info("Starting HTTP server on port 8080")
-
 	// Load config
 	config, err := config.LoadConfig()
 	if err != nil {
@@ -37,5 +35,6 @@ func Start() {
 	// Metrics / healthcheck
 	http.HandleFunc("/healthcheck", handlers.Healthcheck)
 
+	slog.Info("starting HTTP server", "port", config.Server.Port)
 	http.ListenAndServe(fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port), nil)
 }
