@@ -14,7 +14,7 @@ services:
       - SERVER_AUTH=false
       - SERVER_DEBUG=false
       - LOGGING_LEVEL=info
-      - SCYLLA_HOSTS=localhost
+      - SCYLLA_HOSTS=scylla
       - SCYLLA_KEYSPACE=doppelganger
       - SCYLLA_REPLICATION_CLASS=SimpleStrategy
       - SCYLLA_REPLICATION_FACTOR=1
