@@ -18,7 +18,7 @@ services:
       - SCYLLA_KEYSPACE=doppelganger
       - SCYLLA_REPLICATION_CLASS=SimpleStrategy
       - SCYLLA_REPLICATION_FACTOR=1
-      - PYROSCOPE_ADDRESS=
+      - PYROSCOPE_ADDRESS=http://pyroscope.crawl1.archive.org
   scylla:
     image: scylladb/scylla
     container_name: scylla
