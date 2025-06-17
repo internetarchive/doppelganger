@@ -8,6 +8,8 @@ services:
       - 5000:5000
     stop_grace_period: 10m
     restart: unless-stopped
+    depends_on:
+      - scylla
     environment:
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=5000
