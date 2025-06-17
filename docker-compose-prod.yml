@@ -22,5 +22,6 @@ services:
   scylla:
     image: scylladb/scylla
     container_name: scylla
+    command: --developer-mode=0
     volumes:
-      - /var/lib/scylla:/var/lib/scylla
+      - /1/crawling/doppelganger/scylla:/var/lib/scylla
