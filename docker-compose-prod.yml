@@ -9,7 +9,8 @@ services:
     stop_grace_period: 10m
     restart: unless-stopped
     depends_on:
-      - scylla
+      scylla:
+        condition: service_healthy
     environment:
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=5000
@@ -28,3 +29,9 @@ services:
     privileged: true
     volumes:
       - /1/crawling/doppelganger/scylla:/var/lib/scylla
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
