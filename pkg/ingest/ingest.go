@@ -1,10 +1,13 @@
 package ingest
 
 import (
+	"compress/gzip"
 	"fmt"
+	"io"
 	"log/slog"
 	"os"
 	"strconv"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -32,8 +35,20 @@ func Files(concurrency int, URL string, files ...string) {
 
 		var skipped, valid int64
 
+		// Check if file is gzip compressed and decompress if needed
+		var reader io.Reader = file
+		if strings.HasSuffix(file.Name(), ".gz") {
+			gzipReader, err := gzip.NewReader(file)
+			if err != nil {
+				fmt.Println("Error creating gzip reader:", err)
+				return
+			}
+			defer gzipReader.Close()
+			reader = gzipReader
+		}
+
 		parseStart := time.Now()
-		records, err := gocdx.Parse(file, "CDX N b a m s k r M S V g")
+		records, err := gocdx.Parse(reader, "CDX N b a m s k r M S V g")
 		if err != nil {
 			fmt.Println("Error parsing CDX file:", err)
 			return
