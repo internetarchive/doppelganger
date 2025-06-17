@@ -26,6 +26,12 @@ func main() {
 			ApplicationName: "doppelganger",
 			Tags: map[string]string{
 				"version": Commit,
+				"command": func() string {
+					if len(os.Args) > 1 {
+						return os.Args[1]
+					}
+					return ""
+				}(),
 			},
 			ServerAddress: pyroscopeAddr,
 			Logger:        pyroscope.StandardLogger,
