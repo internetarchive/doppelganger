@@ -24,7 +24,7 @@ services:
   scylla:
     image: scylladb/scylla
     container_name: scylla
-    command: --developer-mode=0
+    command: --developer-mode=0 --overprovisioned
     privileged: true
     volumes:
       - /1/crawling/doppelganger/scylla:/var/lib/scylla
