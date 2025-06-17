@@ -1,7 +1,6 @@
 package ingest
 
 import (
-	"compress/gzip"
 	"fmt"
 	"io"
 	"log/slog"
@@ -10,6 +9,8 @@ import (
 	"strings"
 	"sync/atomic"
 	"time"
+
+	gzip "github.com/klauspost/pgzip"
 
 	"github.com/internetarchive/doppelganger/pkg/client"
 	"github.com/internetarchive/doppelganger/pkg/server/models"
