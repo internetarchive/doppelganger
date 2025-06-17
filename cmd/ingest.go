@@ -23,5 +23,5 @@ var ingestCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(ingestCmd)
 	ingestCmd.Flags().IntVarP(&concurrency, "concurrency", "c", 1, "Number of concurrent files to process")
-	ingestCmd.Flags().StringVarP(&URL, "url", "u", "http://localhost:8080", "Doppelganger server URL")
+	ingestCmd.Flags().StringVarP(&URL, "url", "u", "http://localhost:5000", "Doppelganger server URL")
 }
