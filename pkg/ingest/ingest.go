@@ -10,7 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	gzip "github.com/klauspost/pgzip"
+	"github.com/klauspost/compress/gzip"
 
 	"github.com/internetarchive/doppelganger/pkg/client"
 	"github.com/internetarchive/doppelganger/pkg/server/models"
