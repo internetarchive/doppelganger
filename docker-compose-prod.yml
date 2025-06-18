@@ -27,6 +27,7 @@ services:
     container_name: scylla
     command: --developer-mode=0 --overprovisioned=1
     privileged: true
+    restart: unless-stopped
     volumes:
       - /1/crawling/doppelganger/scylla:/var/lib/scylla
     healthcheck:
