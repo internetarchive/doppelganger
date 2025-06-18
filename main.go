@@ -21,7 +21,6 @@ var Commit = func() string {
 }()
 
 func main() {
-	println(os.Getenv("PYROSCOPE_ADDRESS"))
 	if pyroscopeAddr := os.Getenv("PYROSCOPE_ADDRESS"); pyroscopeAddr != "" {
 		pyroscope.Start(pyroscope.Config{
 			ApplicationName: "doppelganger",
