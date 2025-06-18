@@ -227,8 +227,13 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 		}
 
 		// Add the batch to the server
-		if err := c.AddRecords(batch...); err != nil {
-			return fmt.Errorf("error adding records: %w", err)
+		for {
+			if err := c.AddRecords(batch...); err != nil {
+				slog.Warn("Error adding records, retrying", "error", err)
+				time.Sleep(time.Second) // Brief delay before retry
+				continue
+			}
+			break // Success, exit retry loop
 		}
 	}
 
