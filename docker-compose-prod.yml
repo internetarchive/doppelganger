@@ -25,7 +25,7 @@ services:
   scylla:
     image: scylladb/scylla
     container_name: scylla
-    command: --developer-mode=0 --overprovisioned=1
+    command: --developer-mode=0 --overprovisioned=1 --memory 80G
     privileged: true
     restart: unless-stopped
     volumes:
