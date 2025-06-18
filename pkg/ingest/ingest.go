@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -24,6 +25,11 @@ var (
 	CHUNK_SIZE          = 100000
 )
 
+type ChunkData struct {
+	Lines   []string
+	ChunkID int
+}
+
 func Files(concurrency int, URL string, files ...string) {
 	c := client.NewClient(URL)
 
@@ -36,8 +42,8 @@ func Files(concurrency int, URL string, files ...string) {
 		defer file.Close()
 
 		var totalSkipped, totalValid int64
-		var totalDedupedCount int
-		var totalRecords int
+		var totalDedupedCount int64
+		var totalRecords int64
 
 		// Check if file is gzip compressed and decompress if needed
 		var reader io.Reader = file
@@ -53,8 +59,8 @@ func Files(concurrency int, URL string, files ...string) {
 
 		parseStart := time.Now()
 
-		// Process file in chunks
-		if err := processFileInChunks(reader, c, &totalSkipped, &totalValid, &totalDedupedCount, &totalRecords); err != nil {
+		// Process file in chunks with concurrency
+		if err := processFileInChunksConcurrent(reader, c, &totalSkipped, &totalValid, &totalDedupedCount, &totalRecords, concurrency); err != nil {
 			fmt.Println("Error processing CDX file:", err)
 			return
 		}
@@ -70,39 +76,101 @@ func Files(concurrency int, URL string, files ...string) {
 	}
 }
 
-func processFileInChunks(reader io.Reader, c *client.Client, totalSkipped, totalValid *int64, totalDedupedCount, totalRecords *int) error {
+func processFileInChunksConcurrent(reader io.Reader, c *client.Client, totalSkipped, totalValid, totalDedupedCount, totalRecords *int64, concurrency int) error {
 	scanner := bufio.NewScanner(reader)
 	// Increase buffer size to handle large CDX lines
 	buf := make([]byte, 0, 64*1024)
 	scanner.Buffer(buf, 10*1024*1024) // 10MB max token size
 
-	var lines []string
-	chunkNum := 0
+	// Create channels for chunk processing
+	chunkChan := make(chan ChunkData, concurrency*2) // Buffer a few chunks
+	errChan := make(chan error, concurrency)
 
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-
-		// Process chunk when we reach CHUNK_SIZE
-		if len(lines) >= CHUNK_SIZE {
-			if err := processChunk(lines, c, totalSkipped, totalValid, totalDedupedCount, totalRecords, chunkNum); err != nil {
-				return err
-			}
-			lines = lines[:0] // Reset slice
-			chunkNum++
-		}
+	// Start worker goroutines
+	var wg sync.WaitGroup
+	for i := 0; i < concurrency; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			chunkWorker(chunkChan, c, totalSkipped, totalValid, totalDedupedCount, totalRecords, errChan)
+		}()
 	}
 
-	// Process remaining lines
-	if len(lines) > 0 {
-		if err := processChunk(lines, c, totalSkipped, totalValid, totalDedupedCount, totalRecords, chunkNum); err != nil {
+	// Read file and send chunks to workers
+	go func() {
+		defer close(chunkChan)
+
+		var lines []string
+		chunkNum := 0
+
+		for scanner.Scan() {
+			lines = append(lines, scanner.Text())
+
+			// Send chunk when we reach CHUNK_SIZE
+			if len(lines) >= CHUNK_SIZE {
+				// Make a copy of the lines slice to avoid race conditions
+				chunkLines := make([]string, len(lines))
+				copy(chunkLines, lines)
+
+				select {
+				case chunkChan <- ChunkData{Lines: chunkLines, ChunkID: chunkNum}:
+					lines = lines[:0] // Reset slice
+					chunkNum++
+				case err := <-errChan:
+					slog.Error("Error from worker", "error", err)
+					return
+				}
+			}
+		}
+
+		// Send remaining lines if any
+		if len(lines) > 0 {
+			chunkLines := make([]string, len(lines))
+			copy(chunkLines, lines)
+
+			select {
+			case chunkChan <- ChunkData{Lines: chunkLines, ChunkID: chunkNum}:
+			case err := <-errChan:
+				slog.Error("Error from worker", "error", err)
+				return
+			}
+		}
+
+		if err := scanner.Err(); err != nil {
+			select {
+			case errChan <- fmt.Errorf("scanner error: %w", err):
+			default:
+			}
+		}
+	}()
+
+	// Wait for all workers to complete
+	wg.Wait()
+	close(errChan)
+
+	// Check for any errors
+	for err := range errChan {
+		if err != nil {
 			return err
 		}
 	}
 
-	return scanner.Err()
+	return nil
 }
 
-func processChunk(lines []string, c *client.Client, totalSkipped, totalValid *int64, totalDedupedCount, totalRecords *int, chunkNum int) error {
+func chunkWorker(chunkChan <-chan ChunkData, c *client.Client, totalSkipped, totalValid, totalDedupedCount, totalRecords *int64, errChan chan<- error) {
+	for chunk := range chunkChan {
+		if err := processChunk(chunk.Lines, c, totalSkipped, totalValid, totalDedupedCount, totalRecords, chunk.ChunkID); err != nil {
+			select {
+			case errChan <- err:
+			default: // Don't block if error channel is full
+			}
+			return
+		}
+	}
+}
+
+func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, totalDedupedCount, totalRecords *int64, chunkNum int) error {
 	// Convert lines back to reader for gocdx.Parse
 	chunkData := strings.Join(lines, "\n")
 	chunkReader := strings.NewReader(chunkData)
@@ -115,11 +183,11 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid *in
 		return fmt.Errorf("error parsing CDX chunk %d: %w", chunkNum, err)
 	}
 
-	*totalRecords += len(records)
+	atomic.AddInt64(totalRecords, int64(len(records)))
 
 	// Deduplicate records in this chunk
 	deduplicatedRecords, dedupedCount := deduplicateRecords(records)
-	*totalDedupedCount += dedupedCount
+	atomic.AddInt64(totalDedupedCount, int64(dedupedCount))
 
 	var validRecords []gocdx.Record
 
@@ -130,12 +198,12 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid *in
 		if record.StatusCode == 429 ||
 			record.StatusCode == 0 ||
 			record.CompressedRecordSize < MINIMUM_RECORD_SIZE {
-			atomic.AddInt64(&skipped, 1)
+			skipped++
 			continue
 		} else {
 			// Filter valid records for batch processing
 			validRecords = append(validRecords, record)
-			atomic.AddInt64(&valid, 1)
+			valid++
 		}
 	}
 
