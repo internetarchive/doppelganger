@@ -5,7 +5,7 @@ FROM golang:1.24.4-alpine AS builder
 WORKDIR /app
 
 # Copy go mod and sum files
-COPY --exclude=scylla/* go.mod go.sum ./
+COPY go.mod go.sum ./
 
 # Download all dependencies
 RUN go mod download
