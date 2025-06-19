@@ -25,11 +25,12 @@ services:
   scylla:
     image: scylladb/scylla
     container_name: scylla
-    command: --developer-mode=0 --overprovisioned=1 --memory 80G
+    command: --developer-mode=0 --overprovisioned=1 --memory 85G
     privileged: true
     restart: unless-stopped
     volumes:
       - /1/crawling/doppelganger/scylla:/var/lib/scylla
+      - scylla.yaml:/etc/scylla/scylla.yaml
     healthcheck:
       test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
       interval: 30s
