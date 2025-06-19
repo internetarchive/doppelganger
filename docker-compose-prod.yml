@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
     volumes:
       - /1/crawling/doppelganger/scylla:/var/lib/scylla
-      - scylla.yaml:/etc/scylla/scylla.yaml
+      - ./scylla.yaml:/etc/scylla/scylla.yaml
     healthcheck:
       test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
       interval: 30s
