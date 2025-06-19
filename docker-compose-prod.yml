@@ -23,7 +23,7 @@ services:
       - SCYLLA_REPLICATION_FACTOR=1
       - PYROSCOPE_ADDRESS=http://pyroscope.crawl1.archive.org
   scylla:
-    image: scylladb/scylla
+    image: scylladb/scylla:2025.1
     container_name: scylla
     command: --developer-mode=0 --overprovisioned=1 --memory 85G
     privileged: true
