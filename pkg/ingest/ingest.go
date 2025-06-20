@@ -20,7 +20,9 @@ import (
 )
 
 var (
-	BATCH_SIZE          = 1000
+	// BATCH_SIZE can be an issue on larger URLs? Work to dynamically adjust in the future?
+	// TODO: dynamically adjust
+	BATCH_SIZE          = 850
 	MINIMUM_RECORD_SIZE = int64(2000)
 	CHUNK_SIZE          = 100000
 )
@@ -197,7 +199,8 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 		// We also set a minimum record size to avoid performance issues on certain revisit records.
 		if record.StatusCode == 429 ||
 			record.StatusCode == 0 ||
-			record.CompressedRecordSize < MINIMUM_RECORD_SIZE {
+			record.CompressedRecordSize < MINIMUM_RECORD_SIZE ||
+			record.NewStyleChecksum == "3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ" {
 			skipped++
 			continue
 		} else {
