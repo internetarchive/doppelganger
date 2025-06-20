@@ -10,6 +10,7 @@ import (
 	"github.com/internetarchive/doppelganger/pkg/server/handlers"
 	"github.com/internetarchive/doppelganger/pkg/server/middlewares"
 	"github.com/internetarchive/doppelganger/pkg/server/repositories"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func Start() {
@@ -34,6 +35,7 @@ func Start() {
 
 	// Metrics / healthcheck
 	http.HandleFunc("/healthcheck", handlers.Healthcheck)
+	http.Handle("/metrics", promhttp.Handler())
 
 	slog.Info("starting HTTP server", "port", config.Server.Port)
 	http.ListenAndServe(fmt.Sprintf("%s:%d", config.Server.Host, config.Server.Port), nil)

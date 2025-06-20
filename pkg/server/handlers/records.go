@@ -7,6 +7,19 @@ import (
 
 	"github.com/internetarchive/doppelganger/pkg/server/models"
 	"github.com/internetarchive/doppelganger/pkg/server/repositories"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
+
+var (
+	doppelganger_successful_hits = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "doppelganger_successful_hits",
+		Help: "The total number of successful responses from Doppelganger deduplication",
+	})
+	doppelganger_missing_hits = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "doppelganger_missing_hits",
+		Help: "The total number of unsuccessful responses from Doppelganger deduplication",
+	})
 )
 
 func Records(w http.ResponseWriter, r *http.Request) {
@@ -27,6 +40,7 @@ func Records(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			if err == repositories.ErrRecordNotFound {
 				http.Error(w, "record not found", http.StatusNotFound)
+				doppelganger_missing_hits.Inc()
 				return
 			}
 
@@ -34,7 +48,9 @@ func Records(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(record)
+		doppelganger_successful_hits.Inc()
 	case http.MethodPost:
 		var records []models.Record
 
