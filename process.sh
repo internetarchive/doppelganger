@@ -2,6 +2,7 @@
 
 # Set Pyroscope address and build
 export PYROSCOPE_ADDRESS=http://pyroscope.crawl1.archive.org
+git pull
 go build
 
 # Check if build was successful
