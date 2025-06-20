@@ -68,10 +68,10 @@ func Files(concurrency int, URL string, files ...string) {
 		slog.Info("CDX file processed",
 			"file", file.Name(),
 			"duration", time.Since(parseStart),
-			"valid", totalValid,
-			"skipped", totalSkipped,
-			"deduped", totalDedupedCount,
 			"total", totalRecords,
+			"deduped", totalDedupedCount,
+			"skipped", totalSkipped,
+			"valid", totalValid,
 		)
 	}
 }
@@ -213,10 +213,9 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 	slog.Info("Processed chunk",
 		"chunk", chunkNum,
 		"records", len(records),
-		"unique", len(deduplicatedRecords),
-		"valid", valid,
-		"skipped", skipped,
 		"deduped", dedupedCount,
+		"skipped", skipped,
+		"valid", valid,
 	)
 
 	// Divide the valid records into batches of BATCH_SIZE
