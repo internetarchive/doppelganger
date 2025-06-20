@@ -34,6 +34,14 @@ func AddRecords(records ...*models.Record) error {
 			record.URI,
 			record.Date,
 		)
+
+		// Evaluate if we can use UPDATE (which should be synonymous with INSERT in Scylla) to update records if the dates are newer, which should improve performance
+		// fmt.Sprintf("UPDATE %s SET uri = ?, date = ? WHERE id = ? IF date < ?", scyllaTable.Name()),
+		//     record.URI,
+		//     record.Date,
+		//     record.ID,
+		//     record.Date,
+		// )
 	}
 
 	if err := scyllaSession.ExecuteBatch(batch); err != nil {
