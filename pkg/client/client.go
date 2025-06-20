@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -59,6 +60,10 @@ func (c *Client) AddRecords(records ...*models.Record) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
+		bodyBytes, err := io.ReadAll(resp.Body)
+		if err == nil && len(bodyBytes) > 0 {
+			return fmt.Errorf("failed to add record: %s - %s", resp.Status, string(bodyBytes))
+		}
 		return fmt.Errorf("failed to add record: %s", resp.Status)
 	}
 
