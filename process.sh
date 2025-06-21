@@ -14,7 +14,7 @@ if [ $? -eq 0 ]; then
     # Check if resume file exists
     if [ -f "/tmp/last_processed.txt" ]; then
         last_processed=$(cat /tmp/last_processed.txt)
-        echo "Resuming from: $last_processed"
+        echo "$last_processed"
         # Skip files until we reach the last processed one
         awk -v start="$last_processed" 'found || $0 > start {found=1; print}' /tmp/file_list.txt
     else
