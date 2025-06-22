@@ -191,6 +191,9 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 	deduplicatedRecords, dedupedCount := deduplicateRecords(records)
 	atomic.AddInt64(totalDedupedCount, int64(dedupedCount))
 
+	// Free memory from original records slice (it is no longer used in this function after deduplication.)
+	records = nil
+
 	var validRecords []gocdx.Record
 
 	for _, record := range deduplicatedRecords {
@@ -213,6 +216,9 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 	atomic.AddInt64(totalSkipped, skipped)
 	atomic.AddInt64(totalValid, valid)
 
+	// Free memory from deduplicatedRecords slice
+	deduplicatedRecords = nil
+
 	// Divide the valid records into batches of BATCH_SIZE
 	for i := 0; i < len(validRecords); i += BATCH_SIZE {
 		batch := convertToModelRecords(validRecords[i:min(i+BATCH_SIZE, len(validRecords))])
@@ -233,7 +239,7 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 
 	slog.Info("Processed chunk",
 		"chunk", chunkNum,
-		"records", len(records),
+		"records", totalRecords,
 		"deduped", dedupedCount,
 		"skipped", skipped,
 		"valid", valid,
