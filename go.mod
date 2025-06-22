@@ -5,7 +5,7 @@ go 1.24.4
 require (
 	github.com/gocql/gocql v1.7.0
 	github.com/grafana/pyroscope-go v1.2.2
-	github.com/internetarchive/gocdx v1.0.0
+	github.com/internetarchive/gocdx v1.0.1
 	github.com/klauspost/compress v1.18.0
 	github.com/prometheus/client_golang v1.22.0
 	github.com/scylladb/gocqlx/v3 v3.0.1
