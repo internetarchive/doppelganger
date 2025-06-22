@@ -238,6 +238,9 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 			}
 			break // Success, exit retry loop
 		}
+
+		// Clear batch reference after successful submission
+		batch = nil
 	}
 
 	slog.Info("Processed chunk",
@@ -248,6 +251,12 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 		"valid", valid,
 		"totalRecords", atomic.LoadInt64(totalRecords),
 	)
+
+	// Explicitly clear validRecords when batch has been submitted.
+	validRecords = nil
+
+	// Clear chunkData string to free memory
+	chunkData = ""
 
 	return nil
 }
