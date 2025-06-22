@@ -246,7 +246,7 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 		"deduped", dedupedCount,
 		"skipped", skipped,
 		"valid", valid,
-		"totalRecords", &totalRecords,
+		"totalRecords", atomic.LoadInt64(totalRecords),
 	)
 
 	return nil
