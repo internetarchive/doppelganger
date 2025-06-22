@@ -2,6 +2,7 @@
 
 # Set Pyroscope address and build
 export PYROSCOPE_ADDRESS=http://pyroscope.crawl1.archive.org
+export GOMAXMEM=10240MiB
 git pull
 go build
 
