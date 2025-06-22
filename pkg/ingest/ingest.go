@@ -213,14 +213,6 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 	atomic.AddInt64(totalSkipped, skipped)
 	atomic.AddInt64(totalValid, valid)
 
-	slog.Info("Processed chunk",
-		"chunk", chunkNum,
-		"records", len(records),
-		"deduped", dedupedCount,
-		"skipped", skipped,
-		"valid", valid,
-	)
-
 	// Divide the valid records into batches of BATCH_SIZE
 	for i := 0; i < len(validRecords); i += BATCH_SIZE {
 		batch := convertToModelRecords(validRecords[i:min(i+BATCH_SIZE, len(validRecords))])
@@ -238,6 +230,14 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 			break // Success, exit retry loop
 		}
 	}
+
+	slog.Info("Processed chunk",
+		"chunk", chunkNum,
+		"records", len(records),
+		"deduped", dedupedCount,
+		"skipped", skipped,
+		"valid", valid,
+	)
 
 	return nil
 }
