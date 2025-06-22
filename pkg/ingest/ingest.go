@@ -187,6 +187,9 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 
 	atomic.AddInt64(totalRecords, int64(len(records)))
 
+	// Count records processed in this chunk
+	chunkRecordCount := int64(len(records))
+
 	// Deduplicate records in this chunk
 	deduplicatedRecords, dedupedCount := deduplicateRecords(records)
 	atomic.AddInt64(totalDedupedCount, int64(dedupedCount))
@@ -239,10 +242,11 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 
 	slog.Info("Processed chunk",
 		"chunk", chunkNum,
-		"records", totalRecords,
+		"records", chunkRecordCount,
 		"deduped", dedupedCount,
 		"skipped", skipped,
 		"valid", valid,
+		"totalRecords", &totalRecords,
 	)
 
 	return nil
