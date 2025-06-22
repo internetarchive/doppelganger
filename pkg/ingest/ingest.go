@@ -185,6 +185,9 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 		return fmt.Errorf("error parsing CDX chunk %d: %w", chunkNum, err)
 	}
 
+	// Clear chunkData immediately after parsing to free memory
+	chunkData = ""
+
 	atomic.AddInt64(totalRecords, int64(len(records)))
 
 	// Count records processed in this chunk
@@ -224,7 +227,8 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 
 	// Divide the valid records into batches of BATCH_SIZE
 	for i := 0; i < len(validRecords); i += BATCH_SIZE {
-		batch := convertToModelRecords(validRecords[i:min(i+BATCH_SIZE, len(validRecords))])
+		end := min(i+BATCH_SIZE, len(validRecords))
+		batch := convertToModelRecords(validRecords[i:end])
 		if batch == nil {
 			return fmt.Errorf("error converting records to model")
 		}
@@ -241,6 +245,11 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 
 		// Clear batch reference after successful submission
 		batch = nil
+
+		// Clear the processed slice segment to free memory incrementally
+		for j := i; j < end; j++ {
+			validRecords[j] = gocdx.Record{} // Zero out the record
+		}
 	}
 
 	slog.Info("Processed chunk",
@@ -254,9 +263,6 @@ func processChunk(lines []string, c *client.Client, totalSkipped, totalValid, to
 
 	// Explicitly clear validRecords when batch has been submitted.
 	validRecords = nil
-
-	// Clear chunkData string to free memory
-	chunkData = ""
 
 	return nil
 }
