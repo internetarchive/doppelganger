@@ -22,7 +22,7 @@ if [ $? -eq 0 ]; then
         cat /tmp/file_list.txt
     fi | while read -r file; do
         echo "Processing: $file"
-        ./doppelganger ingest -c 50 "$file"
+        ./doppelganger ingest -c ${1:-45} "$file"
         # Save current file as last processed
         echo "$file" > /tmp/last_processed.txt
     done
