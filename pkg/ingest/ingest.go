@@ -22,7 +22,7 @@ import (
 var (
 	// BATCH_SIZE can be an issue on larger URLs? Work to dynamically adjust in the future?
 	// TODO: dynamically adjust
-	BATCH_SIZE          = 850
+	BATCH_SIZE          = 800
 	MINIMUM_RECORD_SIZE = int64(2000)
 	CHUNK_SIZE          = 100000
 )
