@@ -31,8 +31,11 @@ func Records(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case http.MethodGet:
-		if ID == "" {
-			http.Error(w, "invalid ID", http.StatusBadRequest)
+		// Check for URI query parameter
+		uri := r.URL.Query().Get("uri")
+
+		if ID == "" && uri == "" {
+			http.Error(w, "invalid ID or URI", http.StatusBadRequest)
 			return
 		}
 
