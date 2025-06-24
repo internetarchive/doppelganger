@@ -51,9 +51,9 @@ func Records(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		doppelganger_successful_hits.Inc()
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(record)
-		doppelganger_successful_hits.Inc()
 	case http.MethodPost:
 		var records []models.Record
 
