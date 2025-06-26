@@ -16,6 +16,10 @@ var (
 		Name: "doppelganger_successful_hits",
 		Help: "The total number of successful responses from Doppelganger deduplication",
 	})
+	doppelganger_non_matching_hits = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "doppelganger_non_matching_hits",
+		Help: "The total number of successful responses but with different Target-URIs from Doppelganger deduplication",
+	})
 	doppelganger_missing_hits = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "doppelganger_missing_hits",
 		Help: "The total number of unsuccessful responses from Doppelganger deduplication",
@@ -52,6 +56,11 @@ func Records(w http.ResponseWriter, r *http.Request) {
 		}
 
 		doppelganger_successful_hits.Inc()
+
+		if uri != record.URI {
+			doppelganger_non_matching_hits.Inc()
+		}
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(record)
 	case http.MethodPost:
