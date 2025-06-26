@@ -36,6 +36,11 @@ services:
     volumes:
       - /1/crawling/doppelganger/scylla:/var/lib/scylla
       - ./scylla.yaml:/etc/scylla/scylla.yaml
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
       interval: 30s
