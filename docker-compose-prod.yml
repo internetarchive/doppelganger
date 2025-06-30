@@ -4,8 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 5000:5000
+    network_mode: host
     stop_grace_period: 10m
     restart: unless-stopped
     depends_on:
@@ -16,20 +15,18 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     environment:
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=5000
       - SERVER_AUTH=false
       - SERVER_DEBUG=false
       - LOGGING_LEVEL=info
-      - SCYLLA_HOSTS=scylla
+      - SCYLLA_HOSTS=localhost
       - SCYLLA_KEYSPACE=doppelganger
       - SCYLLA_REPLICATION_CLASS=SimpleStrategy
       - SCYLLA_REPLICATION_FACTOR=1
       - PYROSCOPE_ADDRESS=http://pyroscope.crawl1.archive.org
-      - CONSUL_ADDRESS=host.docker.internal:8500
+      - CONSUL_ADDRESS=localhost:8500
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/healthcheck"]
       interval: 30s
@@ -41,6 +38,7 @@ services:
     container_name: scylla
     command: --developer-mode=0 --overprovisioned=1 --memory 85G
     privileged: true
+    network_mode: host
     restart: unless-stopped
     volumes:
       - /1/crawling/doppelganger/scylla:/var/lib/scylla
