@@ -16,6 +16,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=5000
@@ -27,6 +29,7 @@ services:
       - SCYLLA_REPLICATION_CLASS=SimpleStrategy
       - SCYLLA_REPLICATION_FACTOR=1
       - PYROSCOPE_ADDRESS=http://pyroscope.crawl1.archive.org
+      - CONSUL_ADDRESS=host.docker.internal:8500 
   scylla:
     image: scylladb/scylla:2025.1
     container_name: scylla
