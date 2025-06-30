@@ -36,7 +36,7 @@ services:
   scylla:
     image: scylladb/scylla:2025.1
     container_name: scylla
-    command: --developer-mode=0 --overprovisioned=1 --memory 85G
+    command: --developer-mode=0 --overprovisioned=1 --memory 85G --listen-address=0.0.0.0 --rpc-address=0.0.0.0
     privileged: true
     network_mode: host
     restart: unless-stopped
