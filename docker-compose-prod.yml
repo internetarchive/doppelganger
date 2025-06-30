@@ -29,7 +29,13 @@ services:
       - SCYLLA_REPLICATION_CLASS=SimpleStrategy
       - SCYLLA_REPLICATION_FACTOR=1
       - PYROSCOPE_ADDRESS=http://pyroscope.crawl1.archive.org
-      - CONSUL_ADDRESS=host.docker.internal:8500 
+      - CONSUL_ADDRESS=host.docker.internal:8500
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
   scylla:
     image: scylladb/scylla:2025.1
     container_name: scylla

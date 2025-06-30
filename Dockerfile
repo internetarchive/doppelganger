@@ -19,7 +19,7 @@ RUN go build -o doppelganger .
 # Start a new stage from scratch
 FROM alpine:latest  
 
-RUN apk --no-cache add ca-certificates
+RUN apk --no-cache add ca-certificates curl
 
 WORKDIR /root/
 
