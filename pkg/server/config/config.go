@@ -8,10 +8,13 @@ import (
 
 type Config struct {
 	Server struct {
-		Host          string
-		Port          int
-		Auth          bool
+		Host  string
+		Port  int
+		Auth  bool
 		Debug bool
+	}
+	Consul struct {
+		Address string
 	}
 	Logging struct {
 		Level            string
@@ -32,6 +35,9 @@ func LoadConfig() (*Config, error) {
 	config.Server.Host = getEnv("SERVER_HOST", "0.0.0.0")
 	config.Server.Port = getEnvAsInt("SERVER_PORT", 5000)
 	config.Server.Debug = getEnvAsBool("SERVER_DEBUG", false)
+
+	// Consul configuration
+	config.Consul.Address = getEnv("CONSUL_ADDRESS", ":8500")
 
 	// Logging configuration
 	config.Logging.Level = getEnv("LOGGING_LEVEL", "info")
