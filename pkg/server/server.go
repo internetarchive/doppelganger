@@ -27,7 +27,6 @@ func Start() {
 	}
 
 	apiMux := http.NewServeMux()
-	apiMux.HandleFunc("/api/records", handlers.Records)
 	apiMux.HandleFunc("/api/records/", handlers.Records)
 
 	http.Handle("/api/", middlewares.LogRequest(apiMux))
