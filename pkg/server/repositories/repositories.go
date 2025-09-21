@@ -13,6 +13,7 @@ import (
 var (
 	scyllaSession gocqlx.Session
 	scyllaTable   *table.Table
+	pendingTable  *table.Table
 )
 
 // Init initializes the ScyllaDB keyspace and table, then sets up the session.
@@ -36,8 +37,8 @@ func Init(cfg *config.Config) (err error) {
 		return err
 	}
 
-	// Init (create if not exists) the records table
-	if err := initScyllaTable(); err != nil {
+	// Init (create if not exists) the records and pending tables
+	if err := initScyllaTables(); err != nil {
 		return err
 	}
 
@@ -73,24 +74,52 @@ func ensureKeyspaceExists(scyllaHosts []string, replicationClass string, replica
 	return nil
 }
 
-func initScyllaTable() (err error) {
-	// Create the table
+func initScyllaTables() (err error) {
+	// Create the records table
 	if err := scyllaSession.Query(`CREATE TABLE IF NOT EXISTS records (
             id text PRIMARY KEY,
             date timestamp,
-            uri text
+            uri text,
+            sha1 text,
+            size bigint
         )`, []string{}).Exec(); err != nil {
-		slog.Error("error when creating table", slog.String("error", err.Error()))
+		slog.Error("error when creating records table", slog.String("error", err.Error()))
 		return err
 	}
 
-	// Create the table object
+	// Create the pending table
+	if err := scyllaSession.Query(`CREATE TABLE IF NOT EXISTS pending (
+            id text PRIMARY KEY,
+            date timestamp,
+            uri text,
+            sha1 text,
+            size bigint
+        )`, []string{}).Exec(); err != nil {
+		slog.Error("error when creating pending table", slog.String("error", err.Error()))
+		return err
+	}
+
+	// Create the records table object
 	scyllaTable = table.New(table.Metadata{
 		Name: "records",
 		Columns: []string{
 			"id",
 			"date",
 			"uri",
+			"sha1",
+			"size",
+		},
+	})
+
+	// Create the pending table object
+	pendingTable = table.New(table.Metadata{
+		Name: "pending",
+		Columns: []string{
+			"id",
+			"date",
+			"uri",
+			"sha1",
+			"size",
 		},
 	})
 

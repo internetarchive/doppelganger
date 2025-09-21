@@ -3,6 +3,9 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"log/slog"
 
@@ -28,6 +31,10 @@ func Start() {
 		return
 	}
 
+	// Initialize and start CDX processor
+	cdxProcessor := NewCDXProcessor(config)
+	cdxProcessor.Start()
+
 	// // Register with Consul
 	// consulClient, serviceID, err := registerWithConsul(config)
 	// if err != nil {
@@ -35,19 +42,21 @@ func Start() {
 	// 	return
 	// }
 
-	// // Setup graceful shutdown to deregister from Consul
-	// c := make(chan os.Signal, 1)
-	// signal.Notify(c, os.Interrupt, syscall.SIGTERM)
-	// go func() {
-	// 	<-c
-	// 	slog.Info("deregistering from Consul")
-	// 	consulClient.Agent().ServiceDeregister(serviceID)
-	// 	os.Exit(0)
-	// }()
+	// Setup graceful shutdown
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	go func() {
+		<-c
+		slog.Info("shutting down gracefully")
+		cdxProcessor.Stop()
+		// consulClient.Agent().ServiceDeregister(serviceID)
+		os.Exit(0)
+	}()
 
 	apiMux := http.NewServeMux()
 	apiMux.HandleFunc("/api/records", handlers.Records)
 	apiMux.HandleFunc("/api/records/", handlers.Records)
+	apiMux.HandleFunc("/api/bulk_records", handlers.BulkRecords)
 
 	http.Handle("/api/", middlewares.LogRequest(apiMux))
 

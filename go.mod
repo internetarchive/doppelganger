@@ -5,6 +5,7 @@ go 1.24.4
 require (
 	github.com/gocql/gocql v1.7.0
 	github.com/grafana/pyroscope-go v1.2.2
+	github.com/hashicorp/consul/api v1.32.1
 	github.com/internetarchive/gocdx v1.0.1
 	github.com/klauspost/compress v1.18.0
 	github.com/prometheus/client_golang v1.22.0
@@ -20,7 +21,6 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/grafana/pyroscope-go/godeltaprof v0.1.8 // indirect
 	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
-	github.com/hashicorp/consul/api v1.32.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
 	github.com/hashicorp/go-hclog v1.5.0 // indirect

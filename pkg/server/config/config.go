@@ -26,6 +26,12 @@ type Config struct {
 		ScyllaReplicationClass  string
 		ScyllaReplicationFactor int
 	}
+	CDX struct {
+		URL              string
+		Cookie           string
+		ProcessInterval  int // in minutes
+		BatchSize        int
+	}
 }
 
 func LoadConfig() (*Config, error) {
@@ -48,6 +54,12 @@ func LoadConfig() (*Config, error) {
 	config.DB.ScyllaKeyspace = getEnv("SCYLLA_KEYSPACE", "crawlhq")
 	config.DB.ScyllaReplicationClass = getEnv("SCYLLA_REPLICATION_CLASS", "SimpleStrategy")
 	config.DB.ScyllaReplicationFactor = getEnvAsInt("SCYLLA_REPLICATION_FACTOR", 1)
+
+	// CDX configuration
+	config.CDX.URL = getEnv("CDX_URL", "")
+	config.CDX.Cookie = getEnv("CDX_COOKIE", "")
+	config.CDX.ProcessInterval = getEnvAsInt("CDX_PROCESS_INTERVAL", 10)
+	config.CDX.BatchSize = getEnvAsInt("CDX_BATCH_SIZE", 100)
 
 	return &config, nil
 }

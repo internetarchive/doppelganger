@@ -20,7 +20,7 @@ type Client struct {
 func NewClient(baseURL string) *Client {
 	return &Client{
 		BaseURL:      baseURL,
-		addRecordURL: fmt.Sprintf("%s/api/records/", baseURL),
+		addRecordURL: fmt.Sprintf("%s/api/bulk_records/", baseURL),
 		HTTPClient: &http.Client{
 			Timeout: 30 * time.Second, // Set the timeout to 30 seconds
 		},
