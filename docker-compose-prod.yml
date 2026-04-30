@@ -9,6 +9,7 @@ services:
         - GOSUMDB
         - HTTP_PROXY
         - HTTPS_PROXY
+        - NO_PROXY
     ports:
       - 5000:5000
     stop_grace_period: 10m

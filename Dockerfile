@@ -6,6 +6,7 @@ ARG GOPROXY
 ARG GOSUMDB
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
+ARG NO_PROXY
 
 # Set the working directory
 WORKDIR /app
@@ -28,6 +29,7 @@ FROM alpine:latest
 # Optional build args for HTTP proxies
 ARG HTTP_PROXY
 ARG HTTPS_PROXY
+ARG NO_PROXY
 
 RUN apk --no-cache --no-check-certificate add ca-certificates curl
 
