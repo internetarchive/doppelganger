@@ -1,2 +1,4 @@
 scylla/*
 doppelganger
+.env
+*.cdx.gz

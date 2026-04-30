@@ -1,6 +1,10 @@
 # Start from the official Go image
 FROM golang:1.26.2-alpine AS builder
 
+# Optional build args for Go module proxy and checksum database
+ARG GOPROXY
+ARG GOSUMDB
+
 # Set the working directory
 WORKDIR /app
 

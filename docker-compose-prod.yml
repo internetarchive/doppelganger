@@ -4,6 +4,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - GOPROXY
+        - GOSUMDB
     ports:
       - 5000:5000
     stop_grace_period: 10m
