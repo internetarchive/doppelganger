@@ -29,7 +29,7 @@ FROM alpine:latest
 ARG http_proxy
 ARG https_proxy
 
-RUN apk --no-cache add ca-certificates curl
+RUN apk --no-cache --no-check-certificate add ca-certificates curl
 
 WORKDIR /root/
 
