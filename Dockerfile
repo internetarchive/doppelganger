@@ -4,8 +4,8 @@ FROM golang:1.26.2-alpine AS builder
 # Optional build args for Go module proxy, checksum database, and HTTP proxies
 ARG GOPROXY
 ARG GOSUMDB
-ARG http_proxy
-ARG https_proxy
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
 
 # Set the working directory
 WORKDIR /app
@@ -26,8 +26,8 @@ RUN go build -o doppelganger .
 FROM alpine:latest  
 
 # Optional build args for HTTP proxies
-ARG http_proxy
-ARG https_proxy
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
 
 RUN apk --no-cache --no-check-certificate add ca-certificates curl
 

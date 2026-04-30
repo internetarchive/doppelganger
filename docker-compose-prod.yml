@@ -7,8 +7,8 @@ services:
       args:
         - GOPROXY
         - GOSUMDB
-        - http_proxy
-        - https_proxy
+        - HTTP_PROXY
+        - HTTPS_PROXY
     ports:
       - 5000:5000
     stop_grace_period: 10m
