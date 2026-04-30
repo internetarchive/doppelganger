@@ -37,7 +37,7 @@ services:
       retries: 3
       start_period: 60s
   scylla:
-    image: scylladb/scylla:2025.1
+    image: scylladb/scylla:2025.4
     container_name: scylla
     command: --developer-mode=0 --overprovisioned=1 --memory 85G
     privileged: true
