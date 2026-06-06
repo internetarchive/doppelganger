@@ -11,17 +11,15 @@ import (
 var ErrRecordNotFound = fmt.Errorf("no record found")
 
 func GetRecord(ID string) (*models.Record, error) {
-	records := new([]*models.Record)
+	var record models.Record
 	q := scyllaSession.Query(scyllaTable.SelectBuilder().Where(qb.Eq("id")).Limit(1).ToCql()).BindMap(qb.M{"id": ID})
-	if err := q.SelectRelease(records); err != nil {
+	if err := q.SelectRelease(&record); err != nil {
+		if err == gocql.ErrNotFound {
+			return nil, ErrRecordNotFound
+		}
 		return nil, err
 	}
-
-	if len(*records) == 0 {
-		return nil, ErrRecordNotFound
-	}
-
-	return (*records)[0], nil
+	return &record, nil
 }
 
 func AddRecords(records ...*models.Record) error {
@@ -44,9 +42,5 @@ func AddRecords(records ...*models.Record) error {
 		// )
 	}
 
-	if err := scyllaSession.ExecuteBatch(batch); err != nil {
-		return err
-	}
-
-	return nil
+	return scyllaSession.ExecuteBatch(batch)
 }
