@@ -6,7 +6,7 @@ require (
 	github.com/gocql/gocql v1.7.0
 	github.com/grafana/pyroscope-go v1.2.8
 	github.com/hashicorp/consul/api v1.34.2
-	github.com/internetarchive/gocdx v1.0.1
+	github.com/internetarchive/gocdx v1.0.2
 	github.com/klauspost/compress v1.18.5
 	github.com/prometheus/client_golang v1.23.2
 	github.com/scylladb/gocqlx/v3 v3.0.4
